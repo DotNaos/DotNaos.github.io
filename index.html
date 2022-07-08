@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas {
+            position: absolute;
+            left: 30%;
+            top: 10%;
+
+        }
+
+        #switch{
+            position: absolute;
+            margin-left: 30%;
+            bottom: 10%;
+            left: 11em;
+            width: 10em;
+            height: 10em;
+            background-color: green;
+            font-size: larger;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            border-radius: 30% ;
+            border-color: greenyellow;
+            
+
+        }
+        span{
+            font-size: large;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        div{
+            margin: 5%;
+            width: fit-content;
+            padding: 10px;
+
+           border: 2px solid black;
+           border-radius: 10px;
+
+        }
+
+
+
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+    <button onclick="switchState()"  id="switch">Switch</button>
+    <p>
+        <div>
+
+            <span>Size: </span> <span id="sizeCounter">1</span>
+            <br>
+            <input type="range" min="1" max="1000" value="10" id="size">
+        </div>
+
+        <div>
+            
+            <span>Resolution: </span> <span id="resCounter">2</span>
+            <br>
+            <input type="range" min="2" max="1000" value="5" id="resolution">
+        </div>
+        <div>
+            
+            <span>Angles: </span>  <span id="anglesCounter">1</span>
+            <br>
+            <input type="range" min="1" max="1000" value="1" id="angles">
+        </div>
+
+    </p>
+
+    <canvas id="canvas" width="1000" height="500"></canvas>
+
+
+    <script>
+
+        // Dieser Code generiert erstmal die Augen 
+        //
+        // Der Mund wird berechnet:
+        //
+        //      Der S_Vector ist die Position an der gezeichnet wird
+        //      -> Der einheitsVector + der S_Vector ist die nächste Position
+        //
+        //      posFace[0] ist der Startpunkt
+        //      posFace[1] ist der Mittelpunkt
+        //      posFace[2] ist der Endpunkt
+
+        
+
+
+
+        let state = true;
+        let size = 1;
+        let angeles = 1;
+        var resSlider = document.getElementById('resolution');
+        var anglesSlider = document.getElementById('angles');
+        var sizeSlider = document.getElementById('size');
+
+
+        var button = document.getElementById('switch');
+        let resolution = 2;
+
+        resSlider.oninput = function()
+        {
+            resolution = resSlider.value;
+            document.getElementById('resCounter').innerHTML = resSlider.value; 
+            draw_smiley(state);
+        }
+        sizeSlider.oninput = function()
+        {
+            size = sizeSlider.value;
+            document.getElementById('sizeCounter').innerText = sizeSlider.value;
+            draw_smiley(state);
+
+        }
+        anglesSlider.oninput = function()
+        {
+            angles = anglesSlider.value;
+            document.getElementById('anglesCounter').innerText = anglesSlider.value;
+            draw_smiley(state);
+        } 
+  
+
+  
+        
+        ////////////////////// CANVAS ///////////////////////
+        class Vector {
+            pos = {
+                x: 0.0,
+                y: 0.0
+            };
+            constructor(x, y) {
+                this.pos.x = x;
+                this.pos.y = y;
+            }
+            addVector(x_, y_) {
+                this.pos.x += x_;
+                this.pos.y += y_;
+            }
+            setVector(x_, y_) {
+            this.pos.x = x_;
+            this.pos.y = y_;
+            }
+
+
+            getLength() {
+
+                let length = Math.sqrt(
+                    
+                    (
+                        Math.pow(this.pos.x, 2) + Math.pow(this.pos.y, 2)
+                    )
+                    );
+                return length;
+            }
+            cropVector(fac){
+                this.pos.x /= fac;
+                this.pos.y /= fac;
+            }
+        }
+
+
+        let canvas = document.getElementById('canvas');
+        let ctx = canvas.getContext('2d');
+
+
+
+        ////////////////////// Smiley ///////////////////////
+        
+
+        let posEyes = [
+           
+           {
+                x: 0,
+                y: 0
+            },
+            {
+                x: 500,
+                y: 0
+            }];
+
+        let posFace1 = [
+            
+            {
+                x: 100,
+                y: 200
+            },
+            {
+                x: 300,
+                y: 400
+            },
+            {
+                x: 500,
+                y: 200
+            }
+        ];
+
+
+        let posFace2 = [{
+                // Sad
+                x: 100,
+                y: 400
+            },
+            {
+                x: 300,
+                y: 200
+            },
+            {
+                x: 500,
+                y: 400
+            }
+        ];
+        let posFace = [{
+               // Sad
+               x: 0,
+               y: 0
+               },
+               {
+               x: 0,
+               y: 0
+               },
+               {
+               x: 0,
+               y: 0
+               }
+               ];
+
+        function add(x, y, width, height) {
+            ctx.fillRect(x, y, width, height);
+        }
+
+        function draw_smiley(activated) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            state = activated ? 1 : 0;
+            console.log(resolution);
+
+            ctx.fillStyle = 'black';
+
+            for (let i = 0; i < 2; i++) {
+                add(posEyes[i].x, posEyes[i].y, 100, 100);
+            }
+
+            
+
+
+
+            if(activated){
+                for(let i = 0; i<3; i++){
+                    posFace[i].x = posFace1[i].x;
+                    posFace[i].y = posFace1[i].y;
+                }
+            }
+            else{
+                for(let i = 0; i<3; i++)
+                {
+                     posFace[i].x = posFace2[i].x; 
+                     posFace[i].y = posFace2[i].y; 
+                }
+            }
+
+            let S_Vector = new Vector(posFace[0].x, posFace[0].y);
+            let einheitsVector = new Vector(0, 0);
+
+
+            
+            for (let i = 0; i < posFace.length - 1 ; i++) 
+            { 
+                    add(S_Vector.pos.x, S_Vector.pos.y, size, size);
+                    einheitsVector.setVector(((posFace[i+1].x - S_Vector.pos.x) / resolution),((posFace[i+1].y - S_Vector.pos.y) / resolution));
+
+                    for(let n = 0; n < resolution; n++)
+                    {
+                        S_Vector.addVector(einheitsVector.pos.x, einheitsVector.pos.y);
+                        add(S_Vector.pos.x, S_Vector.pos.y, size, size);
+                        
+
+                    }  
+
+                    //console.log("\n\n\n------------");
+                    //console.log(i + ": x: " + S_Vector.pos.x);
+                    //console.log(i + ": y: " + S_Vector.pos.y);
+                    
+                    //if(activated){
+                        
+                        ctx.fillStyle = 'gray';
+                        //add(S_Vector.pos.x, S_Vector.pos.y , 100, 100);
+                        ctx.fillStyle = 'black';
+                    //}
+                    
+                    //console.log("------------\n\n\n");
+            }
+ 
+        }
+
+        function switchState() {
+            
+            state = !state;
+            
+            button.style.backgroundColor = state ? "green" : "red";
+
+            //console.log("//////// SWITCHED!!! ///////////");
+
+                  //      console.log(state);
+
+                        
+                        draw_smiley(state);
+
+            //console.log("////////////////////////////////");
+
+
+            
+
+                        
+        }
+
+        //console.log("//////// SWITCHED!!! ///////////");
+
+                        //console.log(state);
+                        draw_smiley(state);
+
+        //console.log("////////////////////////////////");
+        
+    </script>
+</body>
+
+</html>
